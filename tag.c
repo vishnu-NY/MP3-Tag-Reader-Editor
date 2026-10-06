@@ -23,8 +23,9 @@ Status validate_input(char**argv, tag* Tag)
 
 
 
-    char input_mp3_filename[50];  strcpy(input_mp3_filename,argv[4]); 
-    char input_mp3_extention[5]; input_mp3_extention[0] = '.' ;input_mp3_extention[1] = '\0';  strcat(input_mp3_extention,strtok(input_mp3_filename,".")) ;
+    char input_mp3_fileraw[50];  strcpy(input_mp3_fileraw,(strtok(argv[4],"."))); 
+    char input_mp3_extention[5]; input_mp3_extention[0] = '.' ;input_mp3_extention[1] = '\0';  strcat(input_mp3_extention,(strtok(NULL,"."))) ;
+    char input_mp3_filename[55]; strcpy(input_mp3_filename,(strcat(input_mp3_fileraw,input_mp3_extention)));
     if(strcmp(input_mp3_extention,".mp3")==0)
     {
         printf("INFO : Input file Validation Successful\n");
@@ -34,7 +35,8 @@ Status validate_input(char**argv, tag* Tag)
     }
     else
     {
-        printf("ERROR : Input file extention is not .mp3\n");
+        printf("ERROR : Input file extention is not .mp3 it is %s\n",input_mp3_extention);
+        printf("Wrong file name %s\n",argv[4]);
         return e_failure ; 
     }
     
@@ -56,16 +58,19 @@ Status open_files(tag* Tag)
 
 Status view_operation(tag* Tag)
 {
+    /*-----------------------------------------------------------W A R N I N G -------------------------------------------------------*/
+    /*------------------------------------POINTERS-------------------------------------------------------------------------------------*/
     char ch ='\0';
     char mp3_signature_buffer[7];
     int i=0;
-    while(i!=6)
+    while(i!=3)
     {
         ch = getc(Tag->input_mp3_fptr);
          mp3_signature_buffer[i] = ch;
         i++;
     }
-    if((strcmp(mp3_signature_buffer,"ID323")==0) || (strcmp(mp3_signature_buffer,"ID324")==0))
+    mp3_signature_buffer[i]='\0';
+    if((strcmp(mp3_signature_buffer,"ID3")==0))
     {
         printf("INFO : Input file signature verified as %s\n",mp3_signature_buffer);
     }

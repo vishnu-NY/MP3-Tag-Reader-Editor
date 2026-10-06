@@ -18,11 +18,11 @@ int main (int argc, char* argv[])
 
         Tag.operationflag = e_view;
 
-        Status validate_input(argv, &Tag);
+        validate_input(argv, &Tag);
 
-        Status open_files(&Tag);
+        open_files(&Tag);
 
-        Status view_operation(&Tag);
+        view_operation(&Tag);
     }
     else if(check_operation(argv[1])==e_edit)
     {
