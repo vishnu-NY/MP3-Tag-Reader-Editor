@@ -187,6 +187,12 @@ Status validate_input(char**argv, tag* Tag)
     else if(strcmp(argv[1],"-m")==0)
     {
         /*-----------------------------------Validating the tag to edit------------------------------------------*/
+        char* ptr = get_parameter_to_edit(argv[2]);
+        if(ptr==NULL)
+        {
+            printf("The Parameter choosen to Edit is Wrong / Unsupported\n");
+            return e_failure;
+        }
         char parameter_to_edit[6]; strcpy(parameter_to_edit,(get_parameter_to_edit(argv[2])));
         int parameterflag = 0;
         for(int k=0;tags[k]!=NULL;k++)
@@ -283,13 +289,16 @@ Status view_operation(tag* Tag)
     int size = 0;
     size = big_to_little_endian(mp3_filesize_buffer);
     Tag->mp3_file_size = size;
-    printf("INFO : File size is taken -  %d\n",Tag->mp3_file_size);
+    //printf("INFO : File size is taken -  %d\n",Tag->mp3_file_size);
 
     fseek(Tag->input_mp3_fptr,10,SEEK_SET);
 
     /*----------------------------------------------------- P O I N T E R S --------------------------------------------------*/
     int count =0; 
     int tagflag=0;
+    printf("\n---------------------------------------------------------------\n");
+    printf("Sl.No.\tTag\tTag Data\n");
+    printf("---------------------------------------------------------------\n");
     while(count!=6)  // to find all 6 tags
     {
         char tag_buffer[5];
@@ -301,7 +310,7 @@ Status view_operation(tag* Tag)
         }
         tag_buffer[j] = '\0';
         int tagflag=0;
-        printf("INFO : Tag found is %s\n",tag_buffer); //TESTING
+       // printf("INFO : Tag is %s\t",tag_buffer); //TESTING
         for(int k=0;tags[k]!=NULL;k++)
         {
             if(strcmp(tag_buffer,tags[k])==0)
@@ -329,7 +338,7 @@ Status view_operation(tag* Tag)
             }
             ungetc(ch,Tag->input_mp3_fptr);
             tag_data[tag_size-1] = '\0';
-            printf("TAG %d is %s\n",count+1,tag_data);
+            printf("%d\t%s\t%s\n",count+1,tag_buffer,tag_data);
         }
         else
         {
@@ -349,6 +358,7 @@ Status view_operation(tag* Tag)
         count++;
         tagflag=0;
     }
+    printf("---------------------------------------------------------------\n");
 
 
 }
@@ -923,12 +933,7 @@ Status edit_operation(tag* Tag)
 
     printf("\nINFO : Editing completed successfully\n");
 
-    printf("Old ID3 tag size = %d\n",
-           old_tag_size);
-
-    printf("New ID3 tag size = %d\n",
-           new_tag_size);
-
+   
 
     return e_success;
 }
