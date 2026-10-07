@@ -34,6 +34,8 @@ typedef enum
 #ifndef MP3_H
 #define MP3H
 
+
+
 typedef struct{
 
     int operationflag;  
@@ -42,7 +44,7 @@ typedef struct{
     FILE* input_mp3_fptr;
     char input_mp3_fileext[5];
     char mp3_file_version[6];
-
+    int mp3_file_size;
 
     /*------EDIT PARAMETERS-------*/
 
@@ -60,6 +62,9 @@ Status validate_input(char**argv, tag * Tag);
 Status open_files(tag* Tag);
 
 Status view_operation(tag* Tag);
+
+int big_to_little_endian(char* buffer);
+int little_to_big_endian(int val);
 
 
 

@@ -2,6 +2,30 @@
 #include<string.h>
 #include"header.h"
 
+char* tags[]={"TIT2","TPE1","TALB","TYER","TCOM","TCON","COMM",NULL};
+
+/*----------------------------------------------H E L P E R     F U N C T I O N S-----------------------------------*/
+
+   int big_to_little_endian(char* buffer)
+{
+    // Combine the 4 bytes explicitly from Big Endian layout
+    unsigned int res = ((unsigned char)buffer[0] << 24) |
+                       ((unsigned char)buffer[1] << 16) |
+                       ((unsigned char)buffer[2] << 8)  |
+                       ((unsigned char)buffer[3]);
+                       
+    return (int)res;
+}
+
+
+int little_to_big_endian(int val)
+{
+  return ((val & 0x000000FF) << 24) |
+           ((val & 0x0000FF00) << 8)  |
+           ((val & 0x00FF0000) >> 8)  |
+           ((val & 0xFF000000) >> 24);  
+}
+
 OperationType check_operation(char* argv)
 {
     if(strcmp(argv,"-v")==0)
@@ -74,7 +98,89 @@ Status view_operation(tag* Tag)
     {
         printf("INFO : Input file signature verified as %s\n",mp3_signature_buffer);
     }
+    fseek(Tag->input_mp3_fptr,6,SEEK_SET);
+    char mp3_filesize_buffer[5];
+    i=0;
+    while(i!=4)
+    {
+        ch = getc(Tag->input_mp3_fptr);
+       mp3_filesize_buffer[i]=ch; 
+       i++;
+    }
+    int size = 0;
+    size = big_to_little_endian(mp3_filesize_buffer);
+    Tag->mp3_file_size = size;
+    printf("INFO : File size is taken -  %d\n",Tag->mp3_file_size);
+
+    fseek(Tag->input_mp3_fptr,10,SEEK_SET);
+
+    /*----------------------------------------------------- P O I N T E R S --------------------------------------------------*/
+    int count =0; 
+    int tagflag=0;
+    while(count!=6)  // to find all 6 tags
+    {
+        char tag_buffer[5];
+        int j;
+        for(j=0;j<4;j++)
+        {
+            char ch = getc(Tag->input_mp3_fptr);
+            tag_buffer[j]=ch;
+        }
+        tag_buffer[j] = '\0';
+        int tagflag=0;
+        printf("INFO : Tag found is %s\n",tag_buffer); //TESTING
+        for(int k=0;tags[k]!=NULL;k++)
+        {
+            if(strcmp(tag_buffer,tags[k])==0)
+            {
+                tagflag=1;
+                break;
+            }
+        }
+        if(tagflag)
+        {
+            int tag_size;
+            char tag_size_buffer[4];
+            for(int i=0;i<4;i++)
+            {
+                char ch = getc(Tag->input_mp3_fptr);
+                tag_size_buffer[i] = ch;
+            }
+            tag_size = big_to_little_endian(tag_size_buffer);
+            char tag_data[tag_size + 1];
+            fseek(Tag->input_mp3_fptr,3,SEEK_CUR);
+            for(int i = 0;i<tag_size;i++)
+            {
+                ch = getc(Tag->input_mp3_fptr);
+                tag_data[i] = ch;
+            }
+            ungetc(ch,Tag->input_mp3_fptr);
+            tag_data[tag_size-1] = '\0';
+            printf("TAG %d is %s\n",count+1,tag_data);
+        }
+        else
+        {
+            int tag_size;
+            char tag_size_buffer[4];
+            for(int i=0;i<4;i++)
+            {
+                char ch = getc(Tag->input_mp3_fptr);
+                tag_size_buffer[i] = ch;
+            }
+            tag_size = big_to_little_endian(tag_size_buffer);
+            fseek(Tag->input_mp3_fptr,(tag_size+2),SEEK_CUR);
+
+            //continue;
+            
+        }
+        count++;
+        tagflag=0;
+    }
 
 
 }
 
+Status edit_operation(tag* Tag)
+{
+    
+}
