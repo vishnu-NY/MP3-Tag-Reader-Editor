@@ -48,14 +48,21 @@ typedef struct{
 
     /*------EDIT PARAMETERS-------*/
 
-    char edit_parameter[4];
-    char newdata[100];
+    char edit_parameter[5];
+    char newdata[250];
+    int size_of_newdata;
+    FILE* temp_mp3;
+
 
 } tag;
+
+void display_help_menu(void);
 
 OperationType check_operation(char* argv);
 
 parameter check_parameter(char* argv);
+
+char* get_parameter_to_edit(char*argv);
 
 Status validate_input(char**argv, tag * Tag);
 
@@ -63,8 +70,14 @@ Status open_files(tag* Tag);
 
 Status view_operation(tag* Tag);
 
+Status edit_operation(tag* Tag);
+
+Status rename_and_delete(tag* Tag);
+
 int big_to_little_endian(char* buffer);
 int little_to_big_endian(int val);
+void int_to_synchsafe(int size, char *buffer);
+int synchsafe_to_int(char *buffer);
 
 
 
